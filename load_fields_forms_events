@@ -1,0 +1,78 @@
+# API Variable Pull Function ----
+
+# Load list of fields, forms, and events, in the API parameters for REDCap
+# Without the below function, the programmer has to declare all variables (fields), 
+# forms and events from redcap separately in a structures way 
+# (ex. 'fields[0]'='global_id', fields[1]='dob') and the programmer must manually
+# align which field is 0, and which is 1. And when there are 100 fields, this can 
+# get tiring. Using the below function the user could enter the list of variable names 
+# as c("global_id", "dob") and the function automatically assigns 0 and 1. 
+
+# Useing the function:
+
+# Call the load_fields_forms_events and pass up to 3 vectors for all fields, forms, 
+# and or events that need to be pulled from REDCap. 
+# Fields: individual variables to be pulled from REDCap.
+# Forms: specify form to pull from REDCap. All variables in each form will be pulled.  
+# Events: define the event names in which to pull the specified variables 
+#         from fields and forms
+
+# Ex. load_fields_forms_events(fields = c('global_id', 'dob'), 
+#                              events = c('staff_arm_1'), 
+#                              forms = c('contact', 'scores'))
+
+# Define the function
+load_fields_forms_events <- function(fields=NULL,forms=NULL,events=NULL){
+  formData_length = length(formData)
+  # Add the user defined "fields" list to "formData" list of parameters
+  # only if the user provides fields
+  if(!is.null(fields) & length(fields)>0){
+    for (field_idx in 1:length(fields)){
+      # Ex. apend 'name'='global_id'
+      formData <<- append(formData, list(name=fields[field_idx]))
+      # Ex. change 'name' to 'field[0]'
+      names(formData)[formData_length+field_idx] <<- paste("fields[",field_idx-1,"]", sep="")
+    }
+  } else {
+    field_idx=0
+  }
+  
+  # Add the user defined "forms" list to "formData" list of parameters
+  # only if the user provides forms
+  
+  if(!is.null(forms) & length(forms)>0){
+    for (form_idx in 1:length(forms)){
+      # if the form name was entered the name with underscores, we can probably
+      # read that right in. 
+      if (str_detect(forms[form_idx], "_")){ 
+        form = forms[form_idx]
+        # if there are not underscores in the event name, make everything
+        # lowercase and replace spaces with underscores
+      } else {
+        form = tolower(str_replace_all(forms[form_idx], " ", "_"))}
+      formData <<- append(formData, list(name=form))
+      names(formData)[formData_length+field_idx+form_idx] <<- paste("forms[",form_idx-1,"]", sep="")
+    }
+  } else {
+    form_idx=0
+  }
+  
+  # Add the user defined "event" list to "formData" list of parameters
+  # only if the user provides event
+  if(!is.null(events) & length(events)>0){
+    # Add the "events" list above to "formData" list of parameters
+    for (event_idx in 1:length(events)){
+      # If the event name has "_arm_1" included, it can probably be pulled as is 
+      # from REDCap
+      if (str_detect(events[event_idx], "_arm_1")){ 
+        event = events[event_idx]
+        # If the event name does not have "_arm_1" included, add "_arm_1". Only 
+        # Works with studies with one arm. 
+      } else {
+        event = paste(tolower(events[event_idx]), "_arm_1", sep="")
+        event = str_replace_all(event, " ", "_")}
+      formData <<- append(formData, list(name=event))
+      names(formData)[formData_length+field_idx+form_idx+event_idx] <<- paste("events[",event_idx-1,"]", sep="")
+    }
+  }
+}
