@@ -2,6 +2,8 @@
 
 Simplifies REDCap API calls by building the structured `fields`, `forms`, and `events` parameters programmatically — no more manually aligning `fields[0] = "x"` and `fields[1] = "y"`.
 
+#### 💡 Link to Code: https://github.com/NUMesCtrData/Simplified-REDCap-API-Calls/blob/main/load_fields_forms_events
+
 ### 🧠 Purpose
 
 REDCap API calls often require indexed parameters like `fields[0]`, `fields[1]`, etc., which can be tedious to write manually — especially with large variable sets. This function allows you to pass simple vectors of fields, forms, and events, and automatically constructs the properly indexed list (`formData`) for use in the REDCap API call.
